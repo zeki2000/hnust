@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>家务服务用户门户</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="shortcut icon" href="{% static 'assets/img/favicon.png' %}" type="image/x-icon">
+
+    <!--Basic Styles-->
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/font-awesome.min.css' %}" rel="stylesheet" />
+
+    <!--Beyond styles-->
+    <link href="{% static 'assets/css/beyond.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/demo.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'assets/css/animate.min.css' %}" rel="stylesheet" />
+</head>
+<body>
+    <!-- Loading Container -->
+    <div class="loading-container">
+        <div class="loading-progress">
+            <div class="rotator">
+                <div class="rotator">
+                    <div class="rotator colored">
+                        <div class="rotator">
+                            <div class="rotator colored">
+                                <div class="rotator colored"></div>
+                                <div class="rotator"></div>
+                            </div>
+                            <div class="rotator colored"></div>
+                        </div>
+                        <div class="rotator"></div>
+                    </div>
+                    <div class="rotator"></div>
+                </div>
+                <div class="rotator"></div>
+            </div>
+            <div class="rotator"></div>
+        </div>
+    </div>
+    
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="navbar-container">
+                <!-- Navbar Brand -->
+                <div class="navbar-header pull-left">
+                    <a href="#" class="navbar-brand">
+                        <small>
+                            <img src="{% static 'assets/img/logo.png' %}" alt="家务服务预约系统" />
+                        </small>
+                    </a>
+                </div>
+                
+                <!-- Account Area -->
+                <div class="navbar-header pull-right">
+                    <div class="navbar-account">
+                        <ul class="account-area">
+                            <li>
+                            <a class="login-area dropdown-toggle" data-toggle="dropdown">
+                                <div class="avatar" title="查看个人信息">
+                                    <img src="{% static user_info.avatar %}">
+                                </div>
+                                <section>
+                                    <h2><span class="profile"><span>{{ user_info.nickname }}</span></span></h2>
+                                </section>
+                            </a>
+                                <!--Login Area Dropdown-->
+                                <ul class="pull-right dropdown-menu dropdown-arrow dropdown-login-area">
+                                    <li class="username"><a>{{ user.username }}</a></li>
+                                    <li class="dropdown-footer">
+                                        <a href="{% url 'logout' %}">
+                                            退出登录
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- /Account Area -->
+            </div>
+        </div>
+    </div>
+    <!-- /Navbar -->
+    
+    <!-- Main Container -->
+    <div class="main-container container-fluid">
+        <div class="page-container">
+            <!-- Page Sidebar -->
+            <div class="page-sidebar" id="sidebar">
+                <!-- Sidebar Menu -->
+                <ul class="nav sidebar-menu">
+                    <li class="active">
+                        <a href="{% url 'user_dashboard' %}">
+                            <i class="menu-icon glyphicon glyphicon-home"></i>
+                            <span class="menu-text"> 用户中心 </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="menu-icon fa fa-list"></i>
+                            <span class="menu-text"> 服务列表 </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="menu-icon fa fa-shopping-cart"></i>
+                            <span class="menu-text"> 我的订单 </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="menu-icon fa fa-user"></i>
+                            <span class="menu-text"> 个人信息 </span>
+                        </a>
+                    </li>
+                </ul>
+                <!-- /Sidebar Menu -->
+            </div>
+            <!-- /Page Sidebar -->
+            
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Page Header -->
+                <div class="page-header position-relative">
+                    <div class="header-title">
+                        <h1>
+                            欢迎回来，{{ user.username }}
+                        </h1>
+                    </div>
+                </div>
+                <!-- /Page Header -->
+                
+                <!-- Page Body -->
+                <div class="page-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <i class="widget-icon fa fa-tasks"></i>
+                                    <span class="widget-caption">待处理订单</span>
+                                </div>
+                                <div class="widget-body">
+                                    <p>这里显示用户最近的待处理订单...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /Page Body -->
+            </div>
+            <!-- /Page Content -->
+        </div>
+    </div>
+    <!-- /Main Container -->
+
+    <!--Basic Scripts-->
+    <script src="{% static 'assets/js/jquery-2.0.3.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+
+    <!--Cookie Script-->
+    <script src="{% static 'assets/js/cookie.js' %}"></script>
+
+    <!--Beyond Scripts-->
+    <script src="{% static 'assets/js/beyond.min.js' %}"></script>
+</body>
+</html>

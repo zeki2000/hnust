@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家务服务预约系统</title>
+    {% load static %}
+    <link href="{% static 'css/home.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="page login-page">
+    <div class="container d-flex align-items-center">
+        <div class="form-holder">
+            <!-- 左侧栏 -->
+            <div class="info d-flex flex-column justify-content-center">
+                <div class="logo text-center">
+                    <h1>家务服务预约系统</h1>
+                    <p class="subtitle">让专业服务走进您的家庭</p>
+                </div>
+            </div>
+            
+            <!-- 右侧栏 -->
+            <div class="form">
+                <div class="content">
+                <!-- 登录方式切换标签 -->
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#code-login" aria-selected="true" role="tab">验证码登录</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" href="#password-login" aria-selected="false" tabindex="-1" role="tab">密码登录</a>
+                    </li>
+                </ul>
+
+                <!-- 消息提示区域 -->
+                {% if messages %}
+                <div class="alert-container">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- 登录内容区域 -->
+                <div class="tab-content">
+                    <!-- 验证码登录 -->
+                    <div class="tab-pane fade show active" id="code-login" role="tabpanel">
+                        <form id="code-login-form" method="post" action="{% url 'login' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="login_type" value="code">
+                            <div class="mb-3 input-group">
+                                <span class="input-group-text" style="width: 60px;">+86</span>
+                                <input type="tel" class="form-control" name="phone" id="phone-input" placeholder="请输入11位手机号" maxlength="11" pattern="^1[3-9]\d{9}$" required>
+                                <div id="phone-error" class="invalid-feedback">请输入有效的手机号</div>
+                            </div>
+                            <div class="mb-3 input-group">
+                                <input type="text" class="form-control {% if verification_error %}is-invalid{% endif %}" 
+                                    name="verification_code" placeholder="请输入验证码" required>
+                                <button type="button" class="btn btn-outline-secondary send-code-btn">发送验证码</button>
+                                {% if verification_error %}
+                                <div class="invalid-feedback">验证码错误</div>
+                                {% endif %}
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">登录注册</button>
+                        </form>
+                        <div class="text-muted small mt-3">未注册的手机号将自动注册</div>
+                    </div>
+
+                    <!-- 密码登录 -->
+                    <div class="tab-pane fade" id="password-login" role="tabpanel">
+                        <form method="post" action="{% url 'login' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="login_type" value="password">
+                            <div class="mb-3 input-group">
+                                <span class="input-group-text" style="width: 60px;">+86</span>
+                                <input type="tel" class="form-control" name="phone" id="phone-input-password" placeholder="请输入11位手机号" maxlength="11" pattern="^1[3-9]\d{9}$" required>
+                                <div id="phone-error-password" class="invalid-feedback">请输入有效的手机号</div>
+                            </div>
+                            <div class="mb-3 input-group">
+                                <input type="password" class="form-control" name="password" placeholder="请输入密码" required>
+                                <span class="input-group-text" style="cursor: pointer;"><i class="bi bi-eye"></i></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">登录</button>
+                        </form>
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{% url 'password_reset' %}" class="text-muted small">忘记密码</a>
+                            <a href="{% url 'register' %}" class="text-muted small">立即注册</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 协议声明 -->
+            <div class="terms-notice text-center">
+                注册登录即代表同意 <a href="{% url 'terms' %}">用户协议</a> 与 <a href="{% url 'privacy' %}">隐私政策</a>
+            </div>
+        </div>
+    </div>
+
+        <script>
+            // 手机号验证 - 验证码登录
+            const phoneInput = document.getElementById('phone-input');
+            // 手机号验证 - 密码登录
+            const phoneInputPassword = document.getElementById('phone-input-password');
+            
+            function validatePhoneInput(e) {
+                const input = e.target;
+                const value = input.value;
+                const errorElement = document.getElementById(input.id === 'phone-input' ? 'phone-error' : 'phone-error-password');
+                
+                // 过滤非数字字符
+                const filteredValue = value.replace(/\D/g, '');
+                
+                // 更新输入值
+                input.value = filteredValue.substring(0, 11);
+                
+                // 验证手机格式
+                const isValid = /^1[3-9]\d{9}$/.test(filteredValue);
+                input.classList.toggle('is-invalid', !isValid && filteredValue.length === 11);
+                
+                // 更新错误信息
+                if (filteredValue.length === 11 && !isValid) {
+                    errorElement.textContent = '请输入有效的手机号码';
+                    errorElement.style.display = 'block';
+                } else {
+                    errorElement.style.display = 'none';
+                }
+                
+                // 更新发送按钮状态
+                if (e.target.id === 'phone-input') {
+                    document.querySelector('.send-code-btn').disabled = !isValid;
+                }
+            }
+
+            // 为两个手机号输入框添加事件监听
+            [phoneInput, phoneInputPassword].forEach(input => {
+                input.addEventListener('input', validatePhoneInput);
+            });
+
+            // 验证码发送倒计时
+            document.querySelector('.send-code-btn').addEventListener('click', function() {
+                const btn = this;
+                const phone = document.getElementById('phone-input').value;
+                
+                if (!/^1[3-9]\d{9}$/.test(phone)) {
+                    return;
+                }
+
+                btn.disabled = true;
+                
+                // 发送验证码请求
+                fetch('/accounts/send_verification_code/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({phone: phone})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // 开始倒计时
+                        let seconds = 60;
+                        const timer = setInterval(() => {
+                            btn.textContent = `重新发送(${seconds}s)`;
+                            seconds--;
+                            if (seconds < 0) {
+                                clearInterval(timer);
+                                btn.disabled = false;
+                                btn.textContent = '发送验证码';
+                            }
+                        }, 1000);
+                        
+                        // 开发模式下显示验证码
+                        if (data.code) {
+                            alert(`开发模式验证码: ${data.code}`);
+                        }
+                    } else {
+                        alert(data.message || '验证码发送失败');
+                        btn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('请求失败，请检查网络');
+                    btn.disabled = false;
+                });
+            });
+
+            // 密码显示切换
+            document.querySelectorAll('.input-group-text').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const input = icon.previousElementSibling;
+                    input.type = input.type === 'password' ? 'text' : 'password';
+                });
+            });
+
+            // 处理验证码登录表单提交
+            document.getElementById('code-login-form').addEventListener('submit', function(e) {
+                // 移除preventDefault()以使用传统表单提交
+                const phone = document.getElementById('phone-input').value;
+                const code = document.querySelector('[name="verification_code"]').value;
+                
+                if (!phone || !code) {
+                    e.preventDefault();
+                    return;
+                }
+            });
+        </script>
+    </div>
+</div>
+    <script src="{% static 'js/home.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
