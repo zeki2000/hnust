@@ -46,7 +46,8 @@
                                     <span class="widget-caption">基本信息</span>
                                 </div>
                                 <div class="widget-body">
-                                    <form class="form-horizontal" method="post" enctype="multipart/form-data">
+                                    <div class="alert-container"></div>
+                                    <form id="profile-form" class="form-horizontal" method="post" enctype="multipart/form-data" action="{% url 'user_profile' %}">
                                         {% csrf_token %}
                                         
                                         <!-- Avatar Upload -->
@@ -55,14 +56,14 @@
                                             <div class="col-sm-9">
                                                 <div class="fileinput fileinput-new" data-provides="fileinput">
                                                     <div class="fileinput-new thumbnail" style="width: 100px; height: 100px;">
-                                                        <img src="{% static user_info.avatar %}" alt="头像">
+                                                        <img id="avatar-preview" src="{% static user_info.avatar %}" alt="头像">
                                                     </div>
                                                     <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 100px; max-height: 100px;"></div>
                                                     <div>
                                                         <span class="btn btn-default btn-file">
                                                             <span class="fileinput-new">选择图片</span>
                                                             <span class="fileinput-exists">更换</span>
-                                                            <input type="file" name="avatar" accept="image/jpeg,image/png">
+                                                            <input id="avatar-upload" type="file" name="avatar" accept="image/jpeg,image/png">
                                                         </span>
                                                         <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">移除</a>
                                                     </div>
@@ -263,51 +264,7 @@
     <script src="{% static 'assets/js/beyond.min.js' %}"></script>
     
     <!-- Custom Scripts -->
-    <script>
-        // Luhn algorithm for ID validation
-        function validateIdNumber(id) {
-            if (!/^\d{17}[\dXx]$/.test(id)) return false;
-            
-            const weights = [7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2];
-            const checksum = ['1','0','X','9','8','7','6','5','4','3','2'];
-            
-            let sum = 0;
-            for (let i = 0; i < 17; i++) {
-                sum += parseInt(id.charAt(i)) * weights[i];
-            }
-            
-            const mod = sum % 11;
-            return id.charAt(17).toUpperCase() === checksum[mod];
-        }
-
-        // Form validation
-        $(document).ready(function() {
-            $('#realNameForm').submit(function(e) {
-                if (!validateIdNumber($('input[name="id_number"]').val())) {
-                    alert('身份证号码无效，请检查后重新输入');
-                    e.preventDefault();
-                }
-            });
-
-            // SMS verification code countdown
-            $('#sendCodeBtn').click(function() {
-                let countdown = 60;
-                const btn = $(this);
-                btn.prop('disabled', true);
-                
-                const timer = setInterval(function() {
-                    btn.text(countdown + '秒后重试');
-                    countdown--;
-                    
-                    if (countdown < 0) {
-                        clearInterval(timer);
-                        btn.text('获取验证码').prop('disabled', false);
-                    }
-                }, 1000);
-                
-                // TODO: Send verification code via AJAX
-            });
-        });
-    </script>
+    <script src="{% static 'core/js/home.js' %}"></script>
+    <script src="{% static 'core/js/profile.js' %}"></script>
 </body>
 </html>

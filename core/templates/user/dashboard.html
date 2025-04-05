@@ -18,7 +18,7 @@
     <link href="{% static 'assets/css/animate.min.css' %}" rel="stylesheet" />
 </head>
 <body>
-    <!-- Loading Container -->
+    <!-- 加载效果 -->
     <div class="loading-container">
         <div class="loading-progress">
             <div class="rotator">
@@ -40,12 +40,13 @@
             <div class="rotator"></div>
         </div>
     </div>
-    
-    <!-- Navbar -->
+    <!-- 主导航栏容器 -->
     <div class="navbar">
+        <!-- 导航栏内层包裹 -->
         <div class="navbar-inner">
+            <!-- 导航栏内容容器 -->
             <div class="navbar-container">
-                <!-- Navbar Brand -->
+                <!-- 品牌标识区 (左侧) -->
                 <div class="navbar-header pull-left">
                     <a href="#" class="navbar-brand">
                         <small>
@@ -53,45 +54,70 @@
                         </small>
                     </a>
                 </div>
-                
-                <!-- Account Area -->
+
+                <!-- 侧边栏折叠控制 -->
+                <div class="sidebar-collapse" id="sidebar-collapse">
+                    <!-- 汉堡菜单图标 -->
+                    <i class="collapse-icon fa fa-bars"></i>
+                </div>
+
+                <!-- 右侧功能区 -->
                 <div class="navbar-header pull-right">
                     <div class="navbar-account">
                         <ul class="account-area">
+                            <!-- 用户账户管理 -->
                             <li>
-                            <a class="login-area dropdown-toggle" data-toggle="dropdown">
-                                <div class="avatar" title="查看个人信息">
-                                    <img src="{% static user_info.avatar %}">
-                                </div>
-                                <section>
-                                    <h2><span class="profile"><span>{{ user_info.nickname }}</span></span></h2>
-                                </section>
-                            </a>
-                                <!--Login Area Dropdown-->
-                                <ul class="pull-right dropdown-menu dropdown-arrow dropdown-login-area">
-                                    <li class="username"><a>{{ user.username }}</a></li>
+                                <!-- 用户信息展示 -->
+                                <a class="login-area dropdown-toggle" data-toggle="dropdown">
+                                    <div class="avatar">
+                                        <img src="{% static user_info.avatar %}">
+                                    </div>
+                                    <section>
+                                        <h2><span class="profile"><span>{{ user_info.nickname }}</span></span></h2>
+                                    </section>
+                                </a>
+                                <!-- 账户设置面板 -->
+                                <ul class="dropdown-menu dropdown-login-area">
+                                    <!-- 个人资料链接 -->
+                                    <li class="edit">
+                                <a href="{% url 'user_profile' %}" class="pull-left">个人资料</a>
+                                    </li>
+                                    <!-- 主题选择 -->
+                                    <li class="theme-area"><a>主题色选择</a>
+                                        <ul class="colorpicker" id="skin-changer">
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#5DB2FF;" rel="assets/css/skins/blue.min.css"></a></li>
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#2dc3e8;" rel="assets/css/skins/azure.min.css"></a></li>
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#03B3B2;" rel="assets/css/skins/teal.min.css"></a></li>
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#53a93f;" rel="assets/css/skins/green.min.css"></a></li>
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#FF8F32;" rel="assets/css/skins/orange.min.css"></a></li>
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#cc324b;" rel="assets/css/skins/pink.min.css"></a></li>
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#AC193D;" rel="assets/css/skins/darkred.min.css"></a></li>
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#8C0095;" rel="assets/css/skins/purple.min.css"></a></li>
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#0072C6;" rel="assets/css/skins/darkblue.min.css"></a></li>
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#585858;" rel="assets/css/skins/gray.min.css"></a></li>
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#474544;" rel="assets/css/skins/black.min.css"></a></li>
+                                            <li><a class="colorpick-btn" href="#" style="background-color:#001940;" rel="assets/css/skins/deepblue.min.css"></a></li>
+                                        </ul>
+                                    </li>
+                                    <!-- 退出登录 -->
                                     <li class="dropdown-footer">
-                                        <a href="{% url 'logout' %}">
-                                            退出登录
-                                        </a>
+                                        <a href="{% url 'logout' %}"> 退出登录</a>
                                     </li>
                                 </ul>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <!-- /Account Area -->
             </div>
         </div>
     </div>
-    <!-- /Navbar -->
     
-    <!-- Main Container -->
+    <!-- 主容器 -->
     <div class="main-container container-fluid">
         <div class="page-container">
-            <!-- Page Sidebar -->
+            <!-- 页面侧边栏 -->
             <div class="page-sidebar" id="sidebar">
-                <!-- Sidebar Menu -->
+                <!-- 侧边栏菜单 -->
                 <ul class="nav sidebar-menu">
                     <!-- 1. 我的订单 -->
                     <li>
@@ -223,7 +249,7 @@
                         <ul class="submenu">
                             <li>
                                 <a href="#">
-                                    <span class="menu-text">个人信息</span>
+                                    <a href="{% url 'user_profile' %}"><span class="menu-text">个人信息</span></a>
                                     <small class="badge badge-success">已认证</small>
                                 </a>
                             </li>
@@ -240,9 +266,7 @@
                         </ul>
                     </li>
                 </ul>
-                <!-- /Sidebar Menu -->
             </div>
-            <!-- /Page Sidebar -->
             
             <!-- Page Content -->
             <div class="page-content">
@@ -250,7 +274,7 @@
                 <div class="page-header position-relative">
                     <div class="header-title">
                         <h1>
-                            欢迎回来，{{ user.username }}
+                            欢迎回来，<span>{{ user_info.nickname }}</span>
                         </h1>
                     </div>
                 </div>
@@ -277,7 +301,7 @@
             <!-- /Page Content -->
         </div>
     </div>
-    <!-- /Main Container -->
+    
 
     <!--Basic Scripts-->
     <script src="{% static 'assets/js/jquery-2.0.3.min.js' %}"></script>
@@ -288,5 +312,47 @@
 
     <!--Beyond Scripts-->
     <script src="{% static 'assets/js/beyond.min.js' %}"></script>
+    
+    <!-- 页面跳转处理 -->
+    <script>
+    $(document).ready(function() {
+        // 拦截所有菜单链接点击
+        $('.sidebar-menu a[href$=".html"]').on('click', function(e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            
+            // 显示加载动画
+            $('.loading-container').show();
+            
+            // AJAX加载目标页面
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function(data) {
+                    // 提取目标页面的Page Content部分
+                    var content = $(data).filter('.page-content').html();
+                    
+                    // 替换当前页面的Page Content
+                    $('.page-content').html(content);
+                    
+                    // 隐藏加载动画
+                    $('.loading-container').hide();
+                    
+                    // 更新浏览器地址栏
+                    history.pushState(null, null, url);
+                },
+                error: function() {
+                    $('.loading-container').hide();
+                    alert('页面加载失败');
+                }
+            });
+        });
+        
+        // 处理浏览器前进/后退
+        window.onpopstate = function() {
+            location.reload();
+        };
+    });
+    </script>
 </body>
 </html>

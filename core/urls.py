@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from .views import profile_view
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -32,4 +33,13 @@ urlpatterns = [
     # 协议相关路由
     path('terms/', views.terms_view, name='terms'),
     path('privacy/', views.privacy_view, name='privacy'),
+    
+    # 用户个人资料路由
+    path('profile/', profile_view, name='user_profile'),
+    
+    # 修改密码路由
+    path('change_password/', views.change_password_view, name='change_password'),
+    
+    # 修改手机号路由
+    path('change_phone/', views.change_phone_view, name='change_phone'),
 ]

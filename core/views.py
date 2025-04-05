@@ -14,6 +14,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 import re
+import time
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
 from django.contrib import messages
@@ -124,10 +125,7 @@ def register_view(request):
                     return redirect('home')
             except Exception as e:
                 messages.error(request, f'注册失败: {str(e)}')
-            
-            login(request, user)
-            messages.success(request, '注册成功!')
-            return redirect('home')
+                return redirect('home')
         messages.error(request, '注册信息无效')
     return redirect('home')
 
@@ -240,6 +238,119 @@ def provider_dashboard(request):
     return render(request, 'provider/dashboard.html', {
         'user': request.user
     })
+
+def change_password_view(request):
+    """修改密码视图"""
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        
+        # 验证当前密码
+        if not request.user.check_password(current_password):
+            messages.error(request, '当前密码不正确')
+            return redirect('user_profile')
+            
+        # 验证新密码
+        if len(new_password) < 8:
+            messages.error(request, '新密码长度不能少于8位')
+            return redirect('user_profile')
+            
+        # 更新密码
+        request.user.set_password(new_password)
+        request.user.save()
+        messages.success(request, '密码修改成功，请重新登录')
+        return redirect('login')
+    
+    return redirect('user_profile')
+
+def profile_view(request):
+    """用户个人资料视图"""
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    try:
+        user_info = UserInfo.objects.get(user=request.user)
+    except UserInfo.DoesNotExist:
+        # 如果UserInfo不存在，创建默认信息
+        avatar_num = random.randint(1, 6)
+        user_info = UserInfo.objects.create(
+            user=request.user,
+            nickname=f'用户{request.user.username[:4]}',
+            gender='未知',
+            avatar=f'assets/img/avatars/default_{avatar_num}.png'
+        )
+    
+    if request.method == 'POST':
+        # 处理表单提交
+        try:
+            # 更新昵称
+            if 'nickname' in request.POST:
+                nickname = request.POST['nickname'].strip()
+                if 2 <= len(nickname) <= 10:
+                    user_info.nickname = nickname
+            
+            # 更新性别
+            if 'gender' in request.POST:
+                gender = request.POST['gender']
+                if gender in ['M', 'F', 'O']:
+                    user_info.gender = gender
+            
+            # 更新出生日期
+            if 'birth_date' in request.POST:
+                user_info.birth_date = request.POST['birth_date'] or None
+            
+            # 处理头像上传
+            if 'avatar' in request.FILES:
+                avatar_file = request.FILES['avatar']
+                # 验证文件类型和大小
+                if avatar_file.content_type in ['image/jpeg', 'image/png'] and avatar_file.size <= 2*1024*1024:
+                    # 保存到avatars目录
+                    import os
+                    from django.conf import settings
+                    filename = f'avatar_{request.user.id}_{int(time.time())}.{avatar_file.name.split(".")[-1]}'
+                    save_path = os.path.join(settings.MEDIA_ROOT, 'avatars', filename)
+                    
+                    with open(save_path, 'wb+') as destination:
+                        for chunk in avatar_file.chunks():
+                            destination.write(chunk)
+                    
+                    user_info.avatar = os.path.join('avatars', filename)
+            
+            user_info.save()
+            messages.success(request, '个人信息更新成功')
+        except Exception as e:
+            messages.error(request, f'更新失败: {str(e)}')
+        
+        return redirect('user_profile')
+    
+    return render(request, 'user/profile.html', {
+        'user': request.user,
+        'user_info': user_info
+    })
+
+def change_phone_view(request):
+    """修改手机号视图"""
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    if request.method == 'POST':
+        new_phone = request.POST.get('new_phone')
+        
+        # 验证手机号格式
+        if not re.match(r'^1[3-9]\d{9}$', new_phone):
+            messages.error(request, '手机号格式不正确')
+            return redirect('user_profile')
+            
+        # 更新手机号
+        request.user.phone = new_phone
+        request.user.save()
+        messages.success(request, '手机号修改成功')
+        return redirect('user_profile')
+    
+    return redirect('user_profile')
 
 def password_reset_view(request):
     """手机验证码重置密码视图"""
