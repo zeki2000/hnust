@@ -35,4 +35,4 @@ urlpatterns = [
     # 服务提供商仪表盘
     path('provider/dashboard/', core_views.provider_dashboard, name='provider_dashboard'),
     
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

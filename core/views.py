@@ -91,7 +91,7 @@ def login_view(request):
                     user=user,
                     nickname=nickname,
                     gender='未知',
-                    avatar=f'image/avatars/default_{avatar_num}.png'
+                    avatar=f'avatars/default_{avatar_num}.png'
                 )
                 
             login(request, user)
@@ -219,7 +219,7 @@ def user_dashboard(request):
             user=request.user,
             nickname=f'用户{request.user.username[:4]}',
             gender='未知',
-            avatar=f'image/avatars/default_{avatar_num}.png'
+            avatar=f'avatars/default_{avatar_num}.png'
         )
         # 确保传递角色信息
         return render(request, 'user/common/dashboard.html', {
@@ -327,7 +327,7 @@ def profile_view(request):
             user=request.user,
             nickname=f'用户{request.user.username[:4]}',
             gender='未知',
-            avatar=f'image/avatars/default_{avatar_num}.png'
+            avatar=f'avatars/default_{avatar_num}.png'
         )
     
     if request.method == 'POST':
@@ -345,32 +345,52 @@ def profile_view(request):
                 if gender in ['M', 'F', 'O']:
                     user_info.gender = gender
             
-            # 更新出生日期
-            if 'birth_date' in request.POST:
-                user_info.birth_date = request.POST['birth_date'] or None
-            
             # 处理头像上传
             if 'avatar' in request.FILES:
                 avatar_file = request.FILES['avatar']
                 # 验证文件类型和大小
-                if avatar_file.content_type in ['image/jpeg', 'image/png'] and avatar_file.size <= 2*1024*1024:
-                    # 保存到avatars目录
-                    import os
-                    from django.conf import settings
-                    filename = f'avatar_{request.user.id}_{int(time.time())}.{avatar_file.name.split(".")[-1]}'
-                    save_path = os.path.join(settings.MEDIA_ROOT, 'avatars', filename)
-                    
-                    with open(save_path, 'wb+') as destination:
-                        for chunk in avatar_file.chunks():
-                            destination.write(chunk)
-                    
-                    user_info.avatar = os.path.join('avatars', filename)
+                if avatar_file.content_type not in ['image/jpeg', 'image/png']:
+                    raise ValueError('只支持JPEG/PNG格式图片')
+                if avatar_file.size > 2*1024*1024:
+                    raise ValueError('图片大小不能超过2MB')
+                
+                # 确保avatars目录存在
+                avatars_dir = settings.MEDIA_ROOT
+                os.makedirs(avatars_dir, exist_ok=True)
+                
+                # 生成唯一文件名
+                ext = avatar_file.name.split('.')[-1].lower()
+                filename = f'avatar_{request.user.id}_{int(time.time())}.{ext}'
+                save_path = os.path.join(avatars_dir, filename)
+                
+                # 保存文件
+                with open(save_path, 'wb+') as destination:
+                    for chunk in avatar_file.chunks():
+                        destination.write(chunk)
+                
+                # 更新头像路径
+                user_info.avatar = filename
             
             user_info.save()
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': '个人信息更新成功',
+                    'avatar_url': user_info.avatar.url if hasattr(user_info.avatar, 'url') else f'/media/{user_info.avatar}',
+                    'nickname': user_info.nickname
+                })
             messages.success(request, '个人信息更新成功')
         except Exception as e:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': str(e)
+                }, status=400)
             messages.error(request, f'更新失败: {str(e)}')
         
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'message': '无效请求'}, status=400)
         return redirect('user_profile')
     
     return render(request, 'user/account/profile.html', {

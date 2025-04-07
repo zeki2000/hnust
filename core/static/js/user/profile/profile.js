@@ -73,3 +73,101 @@ function showAlert(type, message) {
         alertDiv.alert('close');
     }, 5000);
 }
+
+// 头像上传预览和处理
+$(document).ready(function() {
+    
+    // 头像上传预览
+    $('#avatar-upload').change(function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        // 验证文件类型和大小
+        if (!file.type.match('image/jpeg|image/png')) {
+            showAlert('danger', '只支持JPEG/PNG格式图片');
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            showAlert('danger', '图片大小不能超过2MB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            $('#avatar-preview').attr('src', event.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // 日期格式转换函数
+    function normalizeDate(dateStr) {
+        
+        const match = dateStr.match(/^(\d{4})\.(\d{1,2})(\d{2})日?$/);
+        if (match) {
+            const year = match[1];
+            const month = match[2].padStart(2, '0');
+            const day = match[3];
+            return `${year}-${month}-${day}`;
+        }
+        return dateStr; // 返回原值或标准格式
+    }
+
+    // AJAX表单提交
+    $('#profile-form').submit(function(e) {
+        e.preventDefault();
+        
+        const form = $(this);
+        const formData = new FormData(this);
+        
+        const submitBtn = form.find('button[type="submit"]');
+        
+        // 禁用提交按钮防止重复提交
+        submitBtn.prop('disabled', true);
+        
+        $.ajax({
+            url: this.action,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.success) {
+                    showAlert('success', '资料更新成功');
+                    // 更新页面上的头像显示
+                    if (data.avatar_url) {
+                        $('#avatar-preview').attr('src', data.avatar_url);
+                        $('.navbar .avatar img').attr('src', data.avatar_url);
+                    }
+            // 更新导航栏用户信息
+            if (data.success) {
+                console.log('Full AJAX response:', data);
+                // 头像更新
+                if (data.avatar_url) {
+                    console.log('Updating avatar in navbar');
+                    $('.navbar .avatar img').attr('src', data.avatar_url);
+                }
+                // 更新昵称
+                if (data.nickname) {
+                    console.log('Updating nickname from response:', data.nickname);
+                    $('.navbar .profile span').text(data.nickname);
+                }
+                    } else {
+                        console.error('Profile update failed:', data.message || 'Unknown error');
+                    }
+                } else {
+                    showAlert('danger', data.message || '更新失败');
+                }
+            },
+            error: function(xhr) {
+                let message = '网络错误，请重试';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
+                showAlert('danger', message);
+            },
+            complete: function() {
+                submitBtn.prop('disabled', false);
+            }
+        });
+    });
+});

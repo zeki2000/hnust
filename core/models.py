@@ -124,25 +124,22 @@ class UserInfo(models.Model):
         default='未知',
         verbose_name='性别'
     )
-    birthday = models.DateField(
-        null=True,
-        blank=True,
-        verbose_name='生日'
-    )
-    avatar = models.URLField(
-        max_length=255,
-        default='assets/img/avatars/default_1.png',
-        verbose_name='头像URL'
+    avatar = models.ImageField(
+        upload_to='avatars/',
+        default='avatars/default_1.png',
+        verbose_name='头像'
     )
 
     def save(self, *args, **kwargs):
         if not self.avatar:
             import os
             import random
-            avatar_dir = os.path.join('static', 'assets', 'img', 'avatars')
+            from django.conf import settings
+            avatar_dir = os.path.join(settings.MEDIA_ROOT, 'avatars')
+            os.makedirs(avatar_dir, exist_ok=True)
             default_avatars = [f for f in os.listdir(avatar_dir) if f.endswith(('.png', '.jpg', '.jpeg'))]
             if default_avatars:
-                self.avatar = os.path.join('assets', 'img', 'avatars', random.choice(default_avatars))
+                self.avatar = os.path.join('avatars', random.choice(default_avatars))
         super().save(*args, **kwargs)
 
     class Meta:

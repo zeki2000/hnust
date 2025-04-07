@@ -70,52 +70,6 @@ function showTab(tabId) {
     }
 }
 
-// 个人资料页功能
-document.addEventListener('DOMContentLoaded', function() {
-    // 头像上传预览
-    const avatarInput = document.getElementById('avatar-upload');
-    if (avatarInput) {
-        avatarInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    document.getElementById('avatar-preview').src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    // AJAX表单提交
-    const profileForm = document.getElementById('profile-form');
-    if (profileForm) {
-        profileForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            fetch(this.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert('success', '资料更新成功');
-                } else {
-                    showAlert('danger', data.message || '更新失败');
-                }
-            })
-            .catch(error => {
-                showAlert('danger', '网络错误，请重试');
-            });
-        });
-    }
-});
-
 function showAlert(type, message) {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show`;

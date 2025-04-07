@@ -141,6 +141,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'core/static'),
 ]
 
+# Media files (user uploaded content)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 # Authentication
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'

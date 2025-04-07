@@ -1,4 +1,4 @@
-{% load static %}
+ {% load static %}
 <!-- 主导航栏容器 -->
 <div class="navbar">
     <!-- 导航栏内层包裹 -->
@@ -29,7 +29,7 @@
                             <!-- 用户信息展示 -->
                             <a class="login-area dropdown-toggle" data-toggle="dropdown">
                                 <div class="avatar">
-                                    <img src="{% static user_info.avatar %}">
+                                    <img src="{{ user_info.avatar.url }}">
                                 </div>
                                 <section>
                                     <h2><span class="profile"><span>{{ user_info.nickname }}</span></span></h2>

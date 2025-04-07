@@ -7,11 +7,8 @@
 <style>
     @font-face {
       font-family: 'FontAwesome';
-      src: url('{% static "fonts/fontawesome-webfont.eot" %}');
-      src: url('{% static "fonts/fontawesome-webfont.eot" %}?#iefix') format('embedded-opentype'),
-           url('{% static "fonts/fontawesome-webfont.woff" %}') format('woff'),
-           url('{% static "fonts/fontawesome-webfont.ttf" %}') format('truetype'),
-           url('{% static "fonts/fontawesome-webfont.svg" %}#fontawesomeregular') format('svg');
+      src: url('{% static "fonts/fontawesome-webfont.woff" %}') format('woff');
+      font-display: swap;
       font-weight: normal;
       font-style: normal;
     }
@@ -46,7 +43,7 @@
                                             <div class="col-sm-9">
                                                 <div class="fileinput fileinput-new" data-provides="fileinput">
                                                     <div class="fileinput-new thumbnail" style="width: 100px; height: 100px;">
-                                                        <img id="avatar-preview" src="{% static user_info.avatar %}" alt="头像">
+                                                        <img id="avatar-preview" src="{{ user_info.avatar.url }}" alt="头像">
                                                     </div>
                                                     <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 100px; max-height: 100px;"></div>
                                                     <div>
@@ -85,15 +82,6 @@
                                             </div>
                                         </div>
                                         
-                                        <!-- Birth Date -->
-                                        <div class="form-group">
-                                            <label class="col-sm-3 control-label">出生日期</label>
-                                            <div class="col-sm-9">
-                                                <input type="date" class="form-control" name="birth_date" 
-                                                       value="{{ user_info.birth_date|date:'Y-m-d' }}">
-                                            </div>
-                                        </div>
-                                        
                                         <div class="form-group">
                                             <div class="col-sm-offset-3 col-sm-9">
                                                 <button type="submit" class="btn btn-primary">保存修改</button>
@@ -108,6 +96,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/registration/home.js' %}"></script>
 <script src="{% static 'js/user/profile/profile.js' %}"></script>
 {% endblock %}
