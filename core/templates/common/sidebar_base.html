@@ -30,7 +30,7 @@
 
                     <!-- 动态菜单区域 -->
                     {% block sidebar_menu %}
-                        {% if user_info.role == 'C' %}
+                        {% if user.role == 'C' %}
                             <!-- C端用户菜单 -->
                     <li class="menu-category">
                         <a href="#" class="menu-dropdown">
@@ -120,7 +120,7 @@
                                 </ul>
                             </li>
                             
-                        {% elif user_info.role == 'B' %}
+                        {% elif user.role == 'B' %}
                             <!-- B端服务者菜单 -->
                             <li class="menu-category">
                                 <a href="#" class="menu-dropdown">
@@ -184,7 +184,7 @@
                                 </ul>
                             </li>
                             
-                        {% elif user_info.role == 'admin' %}
+                        {% elif user.role == 'admin' %}
                             <!-- 管理员菜单 -->
                             <li class="menu-category">
                                 <a href="#" class="menu-dropdown">
