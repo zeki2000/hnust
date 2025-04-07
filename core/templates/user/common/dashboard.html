@@ -1,0 +1,38 @@
+{% extends "common/base.html" %}
+{% load static %}
+
+{% block title %}家务服务系统 - 用户中心{% endblock %}
+
+{% block extra_css %}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header position-relative">
+    <div class="header-title">
+        <h1>
+            欢迎回来，<span>{{ user_info.nickname }}</span>
+        </h1>
+    </div>
+</div>
+<!-- /Page Header -->
+
+<!-- Page Body -->
+<div class="page-body">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="widget">
+                <div class="widget-header">
+                    <i class="widget-icon fa fa-tasks"></i>
+                    <span class="widget-caption">待处理订单</span>
+                </div>
+                <div class="widget-body">
+                    <p>这里显示用户最近的待处理订单...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Page Body -->
+{% endblock %}
+{% block extra_js %}
+{% endblock %}

@@ -1,0 +1,260 @@
+{% load static %}
+<!-- 用户门户样式 -->
+<link href="{% static 'css/common/bootstrap.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/common/font-awesome.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/common/beyond.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/common/animate.min.css' %}" rel="stylesheet">
+
+<!-- 侧边栏容器 -->
+<div id="sidebar" class="page-sidebar">
+    <!-- 侧边栏内层包裹 -->
+    <div class="sidebar-inner">
+        <!-- 侧边栏内容容器 -->
+        <div class="sidebar-container">
+            <!-- 侧边栏折叠按钮 -->
+            <div class="sidebar-collapse" id="sidebar-collapse">
+                <i class="fa fa-angle-double-left"></i>
+            </div>
+            <!-- 主菜单区域 -->
+            <div class="sidebar-menu">
+                <ul class="nav sidebar-menu">
+                    <!-- 首页菜单项 -->
+                    <li class="active">
+                        <a href="{% url 'user_dashboard' %}">
+                            <span class="menu-icon">
+                                <i class="fa fa-home"></i>
+                            </span>
+                            <span class="menu-text">首页</span>
+                        </a>
+                    </li>
+
+                    <!-- 动态菜单区域 -->
+                    {% block sidebar_menu %}
+                        {% if user_info.role == 'C' %}
+                            <!-- C端用户菜单 -->
+                    <li class="menu-category">
+                        <a href="#" class="menu-dropdown">
+                            <span class="menu-icon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </span>
+                            <span class="menu-text">我的订单</span>
+                            <i class="fa fa-angle-right pull-right"></i>
+                        </a>
+                        <ul class="submenu">
+                                    <li><a href="{% url 'user_orders' %}?status=active"><i class="fa fa-spinner"></i> 进行中</a></li>
+                                    <li><a href="{% url 'user_orders' %}?status=history"><i class="fa fa-history"></i> 历史订单</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-calendar-check-o"></i>
+                                    </span>
+                                    <span class="menu-text">预约服务</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'quick_booking' %}"><i class="fa fa-bolt"></i> 快速预约</a></li>
+                                    <li><a href="{% url 'favorites' %}"><i class="fa fa-heart"></i> 服务收藏夹</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-map-marker"></i>
+                                    </span>
+                                    <span class="menu-text">地址管理</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'address_book' %}"><i class="fa fa-book"></i> 我的地址簿</a></li>
+                                    <li><a href="{% url 'recommended_addresses' %}"><i class="fa fa-map-marker"></i> 常用地址推荐</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-headphones"></i>
+                                    </span>
+                                    <span class="menu-text">售后服务</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'refund_request' %}"><i class="fa fa-undo"></i> 申请退款</a></li>
+                                    <li><a href="{% url 'rework_request' %}"><i class="fa fa-repeat"></i> 申请返工</a></li>
+                                    <li><a href="{% url 'complaint' %}"><i class="fa fa-comment"></i> 投诉建议</a></li>
+                                    <li><a href="{% url 'service_status' %}"><i class="fa fa-search"></i> 进度查询</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-star"></i>
+                                    </span>
+                                    <span class="menu-text">我的评价</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'pending_reviews' %}"><i class="fa fa-star-half-o"></i> 待评价订单</a></li>
+                                    <li><a href="{% url 'review_history' %}"><i class="fa fa-star"></i> 评价历史记录</a></li>
+                                    <li><a href="{% url 'featured_reviews' %}"><i class="fa fa-trophy"></i> 精选评价展示</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-user-circle"></i>
+                                    </span>
+                                    <span class="menu-text">账户中心</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'user_profile' %}"><i class="fa fa-user"></i> 个人信息</a></li>
+                                    <li><a href="{% url 'security_settings' %}"><i class="fa fa-lock"></i> 安全设置</a></li>
+                                    <li><a href="{% url 'provider_verification' %}"><i class="fa fa-check-circle"></i> 服务者认证</a></li>
+                                </ul>
+                            </li>
+                            
+                        {% elif user_info.role == 'B' %}
+                            <!-- B端服务者菜单 -->
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-dashboard"></i>
+                                    </span>
+                                    <span class="menu-text">我的工作台</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'order_pool' %}"><i class="fa fa-list-ol"></i> 即时接单池</a></li>
+                                    <li><a href="{% url 'schedule_timeline' %}"><i class="fa fa-calendar"></i> 日程时间轴</a></li>
+                                    <li><a href="{% url 'work_statistics' %}"><i class="fa fa-bar-chart"></i> 工作统计</a></li>
+                                    <li><a href="{% url 'performance_analysis' %}"><i class="fa fa-line-chart"></i> 绩效分析</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-cubes"></i>
+                                    </span>
+                                    <span class="menu-text">服务管理</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'service_shelf' %}"><i class="fa fa-cubes"></i> 服务货架</a></li>
+                                    <li><a href="{% url 'smart_publisher' %}"><i class="fa fa-magic"></i> 智能发布器</a></li>
+                                    <li><a href="{% url 'price_strategy' %}"><i class="fa fa-tag"></i> 价格策略</a></li>
+                                    <li><a href="{% url 'service_packages' %}"><i class="fa fa-gift"></i> 服务套餐</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-users"></i>
+                                    </span>
+                                    <span class="menu-text">客户管理</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'customer_list' %}"><i class="fa fa-users"></i> 客户列表</a></li>
+                                    <li><a href="{% url 'customer_tags' %}"><i class="fa fa-tags"></i> 客户标签</a></li>
+                                    <li><a href="{% url 'customer_notes' %}"><i class="fa fa-sticky-note"></i> 客户备注</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-money"></i>
+                                    </span>
+                                    <span class="menu-text">财务管理</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'income_statement' %}"><i class="fa fa-money"></i> 收入报表</a></li>
+                                    <li><a href="{% url 'withdrawal_management' %}"><i class="fa fa-credit-card"></i> 提现管理</a></li>
+                                    <li><a href="{% url 'transaction_records' %}"><i class="fa fa-exchange"></i> 交易记录</a></li>
+                                </ul>
+                            </li>
+                            
+                        {% elif user_info.role == 'admin' %}
+                            <!-- 管理员菜单 -->
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-check-circle"></i>
+                                    </span>
+                                    <span class="menu-text">审核中心</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'realname_verification' %}"><i class="fa fa-id-card"></i> 实名信息库</a></li>
+                                    <li><a href="{% url 'qualification_review' %}"><i class="fa fa-check-circle"></i> 资质审查舱</a></li>
+                                    <li><a href="{% url 'content_moderation' %}"><i class="fa fa-eye"></i> 内容审核</a></li>
+                                    <li><a href="{% url 'complaint_management' %}"><i class="fa fa-exclamation-triangle"></i> 投诉处理</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-line-chart"></i>
+                                    </span>
+                                    <span class="menu-text">数据指挥舱</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'revenue_dashboard' %}"><i class="fa fa-line-chart"></i> 营收仪表盘</a></li>
+                                    <li><a href="{% url 'heatmap_analytics' %}"><i class="fa fa-map"></i> 平台热力云图</a></li>
+                                    <li><a href="{% url 'user_behavior_analysis' %}"><i class="fa fa-user-secret"></i> 用户行为分析</a></li>
+                                    <li><a href="{% url 'provider_performance' %}"><i class="fa fa-star"></i> 服务商绩效</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-cog"></i>
+                                    </span>
+                                    <span class="menu-text">系统配置</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'role_permission' %}"><i class="fa fa-lock"></i> 角色权限</a></li>
+                                    <li><a href="{% url 'system_settings' %}"><i class="fa fa-cog"></i> 系统设置</a></li>
+                                    <li><a href="{% url 'payment_config' %}"><i class="fa fa-credit-card"></i> 支付配置</a></li>
+                                    <li><a href="{% url 'notification_templates' %}"><i class="fa fa-bell"></i> 通知模板</a></li>
+                                </ul>
+                            </li>
+                            
+                            <li class="menu-category">
+                                <a href="#" class="menu-dropdown">
+                                    <span class="menu-icon">
+                                        <i class="fa fa-bullhorn"></i>
+                                    </span>
+                                    <span class="menu-text">运营管理</span>
+                                    <i class="fa fa-angle-right pull-right"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li><a href="{% url 'promotion_management' %}"><i class="fa fa-bullhorn"></i> 促销活动</a></li>
+                                    <li><a href="{% url 'coupon_management' %}"><i class="fa fa-ticket"></i> 优惠券管理</a></li>
+                                    <li><a href="{% url 'content_management' %}"><i class="fa fa-newspaper-o"></i> 内容管理</a></li>
+                                    <li><a href="{% url 'seo_management' %}"><i class="fa fa-search"></i> SEO优化</a></li>
+                                </ul>
+                            </li>
+                            
+                        {% endif %}
+                    {% endblock %}
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>

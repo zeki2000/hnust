@@ -1,0 +1,85 @@
+
+{% extends "common/sidebar_base.html" %}
+{% load static %}
+
+{% block before_content %}
+<ul class="sidebar-menu">
+    <li class="header">MAIN NAVIGATION</li>
+    <li class="treeview">
+        <a href="orders.html">
+            <i class="fa fa-shopping-cart"></i> <span>订单管理</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+            </span>
+        </a>
+        <ul class="treeview-menu">
+            <li><a href="orders-active.html"><i class="fa fa-circle-o"></i> 进行中订单</a></li>
+            <li><a href="orders-history.html"><i class="fa fa-circle-o"></i> 历史订单</a></li>
+        </ul>
+    </li>
+    <li class="treeview">
+        <a href="booking.html">
+            <i class="fa fa-calendar-check-o"></i> <span>服务预约</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+            </span>
+        </a>
+        <ul class="treeview-menu">
+            <li><a href="quick-booking.html"><i class="fa fa-circle-o"></i> 快速预约</a></li>
+            <li><a href="favorites.html"><i class="fa fa-circle-o"></i> 收藏服务</a></li>
+        </ul>
+    </li>
+    <li class="treeview">
+        <a href="address.html">
+            <i class="fa fa-map-marker"></i> <span>地址管理</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+            </span>
+        </a>
+        <ul class="treeview-menu">
+            <li><a href="address-book.html"><i class="fa fa-circle-o"></i> 地址簿</a></li>
+            <li><a href="recommended-addresses.html"><i class="fa fa-circle-o"></i> 推荐地址</a></li>
+        </ul>
+    </li>
+    <li class="treeview">
+        <a href="after-sales.html">
+            <i class="fa fa-headphones"></i> <span>售后服务</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+            </span>
+        </a>
+        <ul class="treeview-menu">
+            <li><a href="refund.html"><i class="fa fa-circle-o"></i> 退款申请</a></li>
+            <li><a href="rework.html"><i class="fa fa-circle-o"></i> 返工申请</a></li>
+            <li><a href="complaint.html"><i class="fa fa-circle-o"></i> 投诉建议</a></li>
+            <li><a href="service-status.html"><i class="fa fa-circle-o"></i> 服务状态</a></li>
+        </ul>
+    </li>
+    <li class="treeview">
+        <a href="reviews.html">
+            <i class="fa fa-star"></i> <span>评价管理</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+            </span>
+        </a>
+        <ul class="treeview-menu">
+            <li><a href="pending-reviews.html"><i class="fa fa-circle-o"></i> 待评价</a></li>
+            <li><a href="review-history.html"><i class="fa fa-circle-o"></i> 评价历史</a></li>
+            <li><a href="featured-reviews.html"><i class="fa fa-circle-o"></i> 精选评价</a></li>
+        </ul>
+    </li>
+    <li class="treeview">
+        <a href="account.html">
+            <i class="fa fa-user-circle"></i> <span>账户设置</span>
+            <span class="pull-right-container">
+                <i class="fa fa-angle-left pull-right"></i>
+            </span>
+        </a>
+        <ul class="treeview-menu">
+            <li><a href="profile.html"><i class="fa fa-circle-o"></i> 个人资料 <span class="badge badge-success">已验证</span></a></li>
+            <li><a href="security.html"><i class="fa fa-circle-o"></i> 账户安全</a></li>
+            <li><a href="verification.html"><i class="fa fa-circle-o"></i> 实名认证</a></li>
+        </ul>
+    </li>
+</ul>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "common/navbar_base.html" %}
+
+{% block navbar_content %}
+<!-- 服务提供者特有的导航栏内容 -->
+<li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <i class="fa fa-tasks"></i>
+        <span>我的服务</span>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a href="{% url 'provider:services' %}">服务管理</a></li>
+        <li><a href="{% url 'provider:orders' %}">订单管理</a></li>
+    </ul>
+</li>
+{% endblock %}

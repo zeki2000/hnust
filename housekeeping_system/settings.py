@@ -10,6 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+# 包含所有项目级别的配置
+# 主要配置项包括：
+# 数据库连接(DATABASES)
+# 静态文件路径(STATIC_URL, STATICFILES_DIRS)
+# 应用注册(INSTALLED_APPS)
+# 中间件配置(MIDDLEWARE)
+# 模板配置(TEMPLATES)
+# 国际化设置(LANGUAGE_CODE, TIME_ZONE)
+# 安全相关配置(SECRET_KEY, DEBUG)
+# 是整个Django项目运行的基础配置
+
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -129,8 +140,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'core/static'),
 ]
-MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Authentication
 LOGIN_URL = '/accounts/login/'

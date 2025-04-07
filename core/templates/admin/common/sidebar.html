@@ -1,0 +1,35 @@
+{% extends "common/sidebar_base.html" %}
+
+{% block sidebar_content %}
+<!-- 管理员特有的侧边栏菜单 -->
+<li class="active">
+    <a href="{% url 'admin:dashboard' %}">
+        <i class="fa fa-dashboard"></i>
+        <span>控制面板</span>
+    </a>
+</li>
+<li>
+    <a href="{% url 'admin:users' %}">
+        <i class="fa fa-users"></i>
+        <span>用户管理</span>
+    </a>
+</li>
+<li>
+    <a href="{% url 'admin:providers' %}">
+        <i class="fa fa-building"></i>
+        <span>服务商管理</span>
+    </a>
+</li>
+<li>
+    <a href="{% url 'admin:orders' %}">
+        <i class="fa fa-list-alt"></i>
+        <span>订单监控</span>
+    </a>
+</li>
+<li>
+    <a href="{% url 'admin:settings' %}">
+        <i class="fa fa-cog"></i>
+        <span>系统设置</span>
+    </a>
+</li>
+{% endblock %}

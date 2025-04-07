@@ -1,0 +1,29 @@
+{% extends "common/sidebar_base.html" %}
+
+{% block sidebar_content %}
+<!-- 服务提供者特有的侧边栏菜单 -->
+<li class="active">
+    <a href="{% url 'provider:dashboard' %}">
+        <i class="fa fa-dashboard"></i>
+        <span>控制面板</span>
+    </a>
+</li>
+<li>
+    <a href="{% url 'provider:services' %}">
+        <i class="fa fa-tasks"></i>
+        <span>服务管理</span>
+    </a>
+</li>
+<li>
+    <a href="{% url 'provider:orders' %}">
+        <i class="fa fa-list-alt"></i>
+        <span>订单管理</span>
+    </a>
+</li>
+<li>
+    <a href="{% url 'provider:schedule' %}">
+        <i class="fa fa-calendar"></i>
+        <span>日程安排</span>
+    </a>
+</li>
+{% endblock %}

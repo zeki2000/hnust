@@ -11,6 +11,16 @@ Django后台管理配置
 5. 自定义管理界面优化
 """
 
+# 配置Django admin后台界面
+# 主要功能：
+# 注册需要在后台管理的模型
+# 自定义后台显示字段
+# 配置搜索/过滤选项
+# 添加自定义操作
+# 示例配置：
+# 注册User模型
+# 自定义Order模型的显示方式
+
 from django.contrib import admin
 
 # Register your models here.

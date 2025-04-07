@@ -1,0 +1,117 @@
+{% extends "common/base.html" %}
+{% load static %}
+
+{% block title %}个人信息管理{% endblock %}
+
+{% block extra_css %}
+<style>
+    @font-face {
+      font-family: 'FontAwesome';
+      src: url('{% static "fonts/fontawesome-webfont.eot" %}');
+      src: url('{% static "fonts/fontawesome-webfont.eot" %}?#iefix') format('embedded-opentype'),
+           url('{% static "fonts/fontawesome-webfont.woff" %}') format('woff'),
+           url('{% static "fonts/fontawesome-webfont.ttf" %}') format('truetype'),
+           url('{% static "fonts/fontawesome-webfont.svg" %}#fontawesomeregular') format('svg');
+      font-weight: normal;
+      font-style: normal;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+                <!-- Page Header -->
+                <div class="page-header position-relative">
+                    <div class="header-title">
+                        <h1>个人信息管理</h1>
+                    </div>
+                </div>
+                
+                <!-- Page Body -->
+                <div class="page-body">
+                    <div class="row">
+                        <div class="col-lg-8 col-lg-offset-2">
+                            <div class="widget">
+                                <div class="widget-header">
+                                    <i class="widget-icon fa fa-user"></i>
+                                    <span class="widget-caption">基本信息</span>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="alert-container"></div>
+                                    <form id="profile-form" class="form-horizontal" method="post" enctype="multipart/form-data" action="{% url 'user_profile' %}">
+                                        {% csrf_token %}
+                                        
+                                        <!-- Avatar Upload -->
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">头像</label>
+                                            <div class="col-sm-9">
+                                                <div class="fileinput fileinput-new" data-provides="fileinput">
+                                                    <div class="fileinput-new thumbnail" style="width: 100px; height: 100px;">
+                                                        <img id="avatar-preview" src="{% static user_info.avatar %}" alt="头像">
+                                                    </div>
+                                                    <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 100px; max-height: 100px;"></div>
+                                                    <div>
+                                                        <span class="btn btn-default btn-file">
+                                                            <span class="fileinput-new">选择图片</span>
+                                                            <span class="fileinput-exists">更换</span>
+                                                            <input id="avatar-upload" type="file" name="avatar" accept="image/jpeg,image/png">
+                                                        </span>
+                                                        <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">移除</a>
+                                                    </div>
+                                                </div>
+                                                <p class="help-block">支持JPG/PNG格式，大小不超过2MB</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Nickname -->
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">昵称</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="nickname" 
+                                                       value="{{ user_info.nickname }}" 
+                                                       minlength="2" maxlength="10" required>
+                                                <p class="help-block">2-10个字符</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Gender -->
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">性别</label>
+                                            <div class="col-sm-9">
+                                                <select class="form-control" name="gender">
+                                                    <option value="M" {% if user_info.gender == 'M' %}selected{% endif %}>男</option>
+                                                    <option value="F" {% if user_info.gender == 'F' %}selected{% endif %}>女</option>
+                                                    <option value="O" {% if user_info.gender == 'O' %}selected{% endif %}>其他</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Birth Date -->
+                                        <div class="form-group">
+                                            <label class="col-sm-3 control-label">出生日期</label>
+                                            <div class="col-sm-9">
+                                                <input type="date" class="form-control" name="birth_date" 
+                                                       value="{{ user_info.birth_date|date:'Y-m-d' }}">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-3 col-sm-9">
+                                                <button type="submit" class="btn btn-primary">保存修改</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/registration/home.js' %}"></script>
+<script src="{% static 'js/user/profile/profile.js' %}"></script>
+{% endblock %}

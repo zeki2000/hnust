@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>{% block title %}家务服务系统{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="shortcut icon" href="{% static 'image/common/favicon.png' %}" type="image/x-icon">
+
+    <!--Basic Styles-->
+    <link href="{% static 'css/common/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/common/font-awesome.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/common/font-awesome-fixed.css' %}" rel="stylesheet" />
+    <style>
+    @font-face {
+      font-family: 'FontAwesome';
+      src: url('{% static "fonts/fontawesome-webfont.eot" %}');
+      src: url('{% static "fonts/fontawesome-webfont.eot" %}?#iefix') format('embedded-opentype'),
+           url('{% static "fonts/fontawesome-webfont.woff" %}') format('woff'),
+           url('{% static "fonts/fontawesome-webfont.ttf" %}') format('truetype'),
+           url('{% static "fonts/fontawesome-webfont.svg" %}#fontawesomeregular') format('svg');
+      font-weight: normal;
+      font-style: normal;
+    }
+    </style>
+    <!--Beyond styles-->
+    <link href="{% static 'css/common/beyond.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/common/demo.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/common/animate.min.css' %}" rel="stylesheet" />
+    {% block extra_css %}{% endblock %}
+    
+</head>
+<body>
+    <!-- 加载效果 -->
+    <div class="loading-container">
+        <div class="loading-progress">
+            <div class="rotator">
+                <div class="rotator">
+                    <div class="rotator colored">
+                        <div class="rotator">
+                            <div class="rotator colored">
+                                <div class="rotator colored"></div>
+                                <div class="rotator"></div>
+                            </div>
+                            <div class="rotator colored"></div>
+                        </div>
+                        <div class="rotator"></div>
+                    </div>
+                    <div class="rotator"></div>
+                </div>
+                <div class="rotator"></div>
+            </div>
+            <div class="rotator"></div>
+        </div>
+    </div>
+
+    {% include "common/navbar_base.html" %}
+    
+    <!-- 主容器 -->
+    <div class="main-container container-fluid">
+        <div class="page-container">
+            {% include "common/sidebar_base.html" %}
+            
+            <!-- Page Content -->
+            <div class="page-content">
+                {% block content %}{% endblock %}
+            </div>
+            <!-- /Page Content -->
+        </div>
+    </div>
+
+    <!--Basic Scripts-->
+    <script src="{% static 'js/common/jquery-2.0.3.min.js' %}"></script>
+    <script src="{% static 'js/common/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/common/cookie.js' %}?v=20240613"></script>
+    
+    <!--Beyond Scripts-->
+    <script src="{% static 'js/common/beyond.min.js' %}?v=20240613"></script>
+    <script>
+    // 确保CookieUtil已定义
+    if(typeof CookieUtil === 'undefined') {
+      console.error('CookieUtil未加载，请检查cookie.js是否正确加载');
+    }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

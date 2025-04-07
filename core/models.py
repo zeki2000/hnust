@@ -10,7 +10,19 @@
 4. 订单与支付模型(Order, Payment)
 5. 售后与评价模型(AfterSales, Review)
 """
+# models.py - 数据模型定义文件
+# 定义数据库表结构和关系
+# 每个模型类对应一个数据库表
+# 包含字段定义、元数据和方法
+# 示例功能：
+# 用户模型(User)
+# 服务模型(Service)
+# 订单模型(Order)
+# 是Django ORM的核心
 
+# 模型是 Django 中与数据库交互的接口，
+# 负责定义数据结构和数据之间的关系，并且处理与数据库的增删改查操作。
+# 通过模型，你可以将数据库中的表抽象成 Python 类，将表中的字段抽象成类的属性，从而使用面向对象的方式来操作数据库。
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import MinLengthValidator, MaxLengthValidator

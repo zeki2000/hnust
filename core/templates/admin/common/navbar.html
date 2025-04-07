@@ -1,0 +1,16 @@
+{% extends "common/navbar_base.html" %}
+
+{% block navbar_content %}
+<!-- 管理员特有的导航栏内容 -->
+<li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <i class="fa fa-cog"></i>
+        <span>系统管理</span>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a href="{% url 'admin:users' %}">用户管理</a></li>
+        <li><a href="{% url 'admin:providers' %}">服务商管理</a></li>
+        <li><a href="{% url 'admin:settings' %}">系统设置</a></li>
+    </ul>
+</li>
+{% endblock %}
