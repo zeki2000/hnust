@@ -47,4 +47,13 @@ urlpatterns = [
     path('user/featured_reviews/', views.featured_reviews, name='featured_reviews'),
     path('user/security_settings/', views.security_settings, name='security_settings'),
     path('user/provider_verification/', views.provider_verification, name='provider_verification'),
+
+    # 安全设置API路由
+    path('api/security/password_status/', views.password_status_api, name='password_status_api'),
+    path('api/security/change_password/', views.change_password_api, name='change_password_api'),
+    path('api/security/set_password/', views.set_password_api, name='set_password_api'), 
+    path('api/security/send_phone_code/', views.send_phone_code_api, name='send_phone_code_api'),
+    path('api/security/change_phone/', views.change_phone_api, name='change_phone_api'),
+    path('api/security/submit_auth/', views.submit_auth_api, name='submit_auth_api'),
+    path('api/security/delete_account/', views.delete_account_api, name='delete_account_api'),
 ]

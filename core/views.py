@@ -1,28 +1,17 @@
-"""
-核心视图定义
-创建于: 2024-03-15
-作者: zeki2000
-功能: 定义家务服务系统的所有视图逻辑
-包含:
-1. 用户认证相关视图(登录、注册、注销)
-2. 服务管理视图(服务列表、详情、下单)
-3. 订单管理视图(订单列表、详情、状态变更)
-4. 支付处理视图
-5. 售后处理视图
-"""
+import os
+import re
+import json
+import time
+import random
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-import re
-import time
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm
 from django.contrib import messages
 from django.core.cache import cache
-import random
 from django.db import transaction
 from .models import UserInfo
 from docx import Document
-import os
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
@@ -30,8 +19,6 @@ from django.contrib.auth.hashers import make_password
 
 #-----------------------------通用模块 登录注册注销退出-----------------------------#
 
-## 首页视图
-## 功能: 显示系统首页, 包含登录表单
 def home(request):
     """系统首页视图"""
     login_form = AuthenticationForm()
@@ -39,16 +26,14 @@ def home(request):
         'login_form': login_form,
     })
 
-## 用户登录视图
-## 功能: 处理用户登录请求, 支持 手机+验证码 或 手机+密码 登录（注册）
 def login_view(request):
-    """用户登录视图(支持手机验证码登录)"""
+    """用户登录视图(支持手机验证码和手机号+密码登录)"""
     if request.method == 'POST':
         # 手机验证码登录
-        if 'phone' in request.POST:
+        if 'phone' in request.POST and 'verification_code' in request.POST:
             phone = request.POST.get('phone')
             code = request.POST.get('verification_code')
-            cached_code = cache.get(f'login_code_{phone}')
+            cached_code = cache.get(f'security_code_{phone}_login')
             
             if not cached_code:
                 messages.error(request, '请先获取验证码')
@@ -65,42 +50,55 @@ def login_view(request):
             User = get_user_model()
             try:
                 user = User.objects.get(phone=phone)
+                if not user.has_usable_password():
+                    pass
             except User.DoesNotExist:
-                # 自动创建新用户
                 user = User.objects.create_user(phone=phone)
-                user.set_unusable_password()
-                user.save()
-                
-                # 创建用户信息
-                from django.utils import timezone
-                # 生成随机有趣用户名
-                adjectives = ['快乐的', '忧郁的', '活泼的', '安静的', '聪明的', '勇敢的']
-                nouns = ['熊猫', '程序员', '旅行家', '美食家', '艺术家', '运动员'] 
-                verbs = ['爱吃', '喜欢', '沉迷', '擅长', '收集', '研究']
-                objects = ['螺蛳粉', '咖啡', '吉他', '代码', '摄影', '瑜伽']
-                
-                nickname = (
-                    f"{random.choice(adjectives)}"
-                    f"{random.choice(nouns)}"
-                    f"{random.choice(verbs)}"
-                    f"{random.choice(objects)}"
-                )
-                # 随机选择default_1到default_6的头像
                 avatar_num = random.randint(1, 6)
                 UserInfo.objects.create(
                     user=user,
-                    nickname=nickname,
+                    nickname=f'用户{phone[-4:]}',
                     gender='未知',
                     avatar=f'avatars/default_{avatar_num}.png'
                 )
                 
             login(request, user)
-            # 根据用户角色跳转不同界面
             if hasattr(user, 'role'):
                 if user.role == 'B':
-                    return redirect('provider_dashboard')  # 服务提供者界面
-                return redirect('user_dashboard')  # 普通用户界面
-            return redirect('home')  # 默认跳转
+                    return redirect('provider_dashboard')
+                return redirect('user_dashboard')
+            return redirect('home')
+        
+        # 手机号+密码登录
+        elif 'phone' in request.POST and 'password' in request.POST:
+            phone = request.POST.get('phone')
+            password = request.POST.get('password')
+            
+            if not re.match(r'^1[3-9]\d{9}$', phone):
+                messages.error(request, '手机号格式不正确')
+                return redirect('login')
+                
+            User = get_user_model()
+            try:
+                user = User.objects.get(phone=phone)
+                if not user.has_usable_password():
+                    messages.error(request, '该账号未设置密码，请使用验证码登录')
+                    return redirect('login')
+                    
+                if not user.check_password(password):
+                    messages.error(request, '手机号或密码错误')
+                    return redirect('login')
+                    
+                login(request, user)
+                if hasattr(user, 'role'):
+                    if user.role == 'B':
+                        return redirect('provider_dashboard')
+                    return redirect('user_dashboard')
+                return redirect('home')
+                
+            except User.DoesNotExist:
+                messages.error(request, '手机号未注册')
+                return redirect('login')
         
         # 传统用户名密码登录
         form = AuthenticationForm(request, data=request.POST)
@@ -110,7 +108,6 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                # 根据用户角色跳转不同界面
                 if hasattr(user, 'role'):
                     if user.role == 'provider':
                         return redirect('provider_dashboard')
@@ -119,8 +116,6 @@ def login_view(request):
         messages.error(request, '用户名或密码错误')
     return redirect('home')
 
-## 用户协议视图
-## 功能: 显示用户协议内容
 def terms_view(request):
     """用户协议视图"""
     doc_path = os.path.join(settings.BASE_DIR, 'core/static/docs/terms.docx')
@@ -128,8 +123,6 @@ def terms_view(request):
     content = '\n'.join([para.text for para in doc.paragraphs])
     return render(request, 'registration/terms.html', {'content': content})
 
-## 隐私政策视图
-## 功能: 显示隐私政策内容
 def privacy_view(request):
     """隐私政策视图""" 
     doc_path = os.path.join(settings.BASE_DIR, 'core/static/docs/privacy.docx')
@@ -137,83 +130,44 @@ def privacy_view(request):
     content = '\n'.join([para.text for para in doc.paragraphs])
     return render(request, 'registration/privacy.html', {'content': content})
 
-## 手机验证码发送视图
-## 功能: 发送手机验证码(开发模式模拟)
 @csrf_exempt
 def send_verification_code(request):
-    """发送手机验证码(开发模式模拟)"""
+    """发送验证码API(开发模式)"""
     if request.method == 'POST':
-        # 验证内容类型
-        if request.content_type != 'application/json':
-            return JsonResponse(
-                {'status': 'error', 'message': 'Content-Type必须是application/json'},
-                status=400,
-                content_type='application/json'
-            )
-            
         try:
-            import json
             data = json.loads(request.body)
             phone = data.get('phone')
+            purpose = data.get('purpose', 'login')  # login/reset/change_phone
             
             if not phone or not re.match(r'^1[3-9]\d{9}$', phone):
-                return JsonResponse(
-                    {'status': 'error', 'message': '手机号无效'},
-                    status=400,
-                    content_type='application/json'
-                )
+                return JsonResponse({'status': 'error', 'message': '手机号无效'}, status=400)
             
             # 生成6位随机验证码
             code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
             # 存储验证码到缓存，有效期5分钟
-            cache.set(f'login_code_{phone}', code, 300)
+            cache.set(f'security_code_{phone}_{purpose}', code, 300)
             
             return JsonResponse({
                 'status': 'success',
                 'message': '验证码已发送(开发模式)',
                 'code': code,  # 开发模式下返回验证码
-                'countdown': 60  # 60秒倒计时
+                'countdown': 60
             })
             
-        except json.JSONDecodeError:
-            return JsonResponse(
-                {'status': 'error', 'message': '无效的请求数据'},
-                status=400
-            )
         except Exception as e:
-            return JsonResponse(
-                {'status': 'error', 'message': str(e)},
-                status=500
-            )
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     
-    return JsonResponse(
-        {'status': 'error', 'message': '仅支持POST请求'},
-        status=405
-    )
+    return JsonResponse({'status': 'error', 'message': '仅支持POST请求'}, status=405)
 
+#-----------------------------用户模块-----------------------------#
 
-#-----------------------------用户模块 个人资料修改-----------------------------#
-## 用户仪表盘视图
-## 功能: 显示用户仪表盘, 包含用户信息和服务列表
 def user_dashboard(request):
     """普通用户仪表盘视图"""
     if not request.user.is_authenticated:
         return redirect('login')
     try:
         user_info = UserInfo.objects.get(user=request.user)
-        # 确保user_info有role属性，如果没有则从user获取
-        if not hasattr(user_info, 'role'):
-            user_info.role = getattr(request.user, 'role', 'user')
-        return render(request, 'user/common/dashboard.html', {
-            'user': request.user,
-            'user_info': user_info,
-            'user_info_with_role': {
-                'role': getattr(request.user, 'role', 'user'),
-                **user_info.__dict__
-            }
-        })
     except UserInfo.DoesNotExist:
-        # 如果UserInfo不存在，创建默认信息
         avatar_num = random.randint(1, 6)
         user_info = UserInfo.objects.create(
             user=request.user,
@@ -221,15 +175,10 @@ def user_dashboard(request):
             gender='未知',
             avatar=f'avatars/default_{avatar_num}.png'
         )
-        # 确保传递角色信息
-        return render(request, 'user/common/dashboard.html', {
-            'user': request.user,
-            'user_info': user_info,
-            'user_info_with_role': {
-                'role': getattr(request.user, 'role', 'user'),
-                **user_info.__dict__
-            }
-        })
+    return render(request, 'user/common/dashboard.html', {
+        'user': request.user,
+        'user_info': user_info
+    })
 
 def provider_dashboard(request):
     """服务提供者仪表盘视图"""
@@ -241,6 +190,78 @@ def provider_dashboard(request):
         'user': request.user
     })
 
+#-----------------------------安全设置API-----------------------------#
+
+def change_phone_api(request):
+    """更换手机号API"""
+    try:
+        data = json.loads(request.body)
+        old_phone = request.user.phone
+        new_phone = data.get('new_phone')
+        code = data.get('code')
+        
+        if not new_phone or not re.match(r'^1[3-9]\d{9}$', new_phone):
+            return JsonResponse({'status': 'error', 'message': '请输入有效的新手机号码'}, status=400)
+            
+        if not code or not re.match(r'^\d{6}$', code):
+            return JsonResponse({'status': 'error', 'message': '请输入6位验证码'}, status=400)
+            
+        # 验证原手机号验证码
+        cached_code = cache.get(f'security_code_{old_phone}_change_phone')
+        if not cached_code or cached_code != code:
+            return JsonResponse({'status': 'error', 'message': '验证码错误或已过期'}, status=400)
+            
+        # 检查新手机号是否已被使用
+        User = get_user_model()
+        if User.objects.filter(phone=new_phone).exclude(id=request.user.id).exists():
+            return JsonResponse({'status': 'error', 'message': '该手机号已被其他账号使用'}, status=400)
+            
+        # 更新手机号
+        request.user.phone = new_phone
+        request.user.save()
+        
+        # 清除验证码缓存
+        cache.delete(f'security_code_{old_phone}_change_phone')
+        
+        return JsonResponse({
+            'status': 'success', 
+            'message': '手机号更换成功',
+            'new_phone': new_phone
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        user_info = UserInfo.objects.create(
+            user=request.user,
+            nickname=f'用户{request.user.username[:4]}',
+            gender='未知',
+            avatar=f'avatars/default_{avatar_num}.png',
+            role='user'
+        )
+        # 确保传递角色信息
+        return render(request, 'user/common/dashboard.html', {
+            'user': request.user,
+            'user_info': user_info,
+            'user_info_with_role': {
+                'role': getattr(request.user, 'role', 'user'),
+                **user_info.__dict__
+            }
+        })
+
+## 服务提供者仪表盘视图
+## 功能: 显示服务提供者仪表盘, 包含服务信息和订单列表
+def provider_dashboard(request):
+    """服务提供者仪表盘视图"""
+    if not request.user.is_authenticated:
+        return redirect('login')
+    if not hasattr(request.user, 'role') or request.user.role != 'provider':
+        return redirect('user_dashboard')
+    return render(request, 'provider\common\dashboard.html', {
+        'user': request.user
+    })
+
+## 统一密码管理视图
+## 功能: 支持忘记密码和修改密码
 def unified_password_view(request, is_profile=False):
     """
     统一密码管理视图
@@ -263,8 +284,11 @@ def unified_password_view(request, is_profile=False):
         confirm_password = request.POST.get('confirm_password')
         
         # 验证密码一致性
-        if not new_password or len(new_password) < 8:
-            messages.error(request, '密码长度不能少于8位')
+        if not new_password or len(new_password) < 6 or len(new_password) > 12:
+            messages.error(request, '密码长度需为6-12位')
+            return redirect('password_reset')
+        if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,12}$', new_password):
+            messages.error(request, '密码需包含字母和数字组合')
             return redirect('password_reset')
             
         if new_password != confirm_password:
@@ -313,6 +337,8 @@ def unified_password_view(request, is_profile=False):
     template = 'user/change_password.html' if is_profile else 'registration/password_reset.html'
     return render(request, template, context)
 
+## 用户个人资料视图
+## 功能: 显示和编辑用户个人资料（头像、昵称、性别）
 def profile_view(request):
     """用户个人资料视图"""
     if not request.user.is_authenticated:
@@ -321,13 +347,14 @@ def profile_view(request):
     try:
         user_info = UserInfo.objects.get(user=request.user)
     except UserInfo.DoesNotExist:
-        # 如果UserInfo不存在，创建默认信息
+        # 如果UserInfo不存在，创建默认信息并设置用户角色
         avatar_num = random.randint(1, 6)
         user_info = UserInfo.objects.create(
             user=request.user,
             nickname=f'用户{request.user.username[:4]}',
             gender='未知',
-            avatar=f'avatars/default_{avatar_num}.png'
+            avatar=f'avatars/default_{avatar_num}.png',
+            role='user'
         )
     
     if request.method == 'POST':
@@ -397,6 +424,126 @@ def profile_view(request):
         'user': request.user,
         'user_info': user_info
     })
+
+#-----------------------------普通用户模块 安全设置-------------------------------#
+
+## 安全设置视图
+## 功能: 允许用户设置修改密码、绑定手机等安全选项
+def security_settings(request):
+    """安全设置视图"""
+    if not request.user.is_authenticated:
+        return redirect('login')
+    try:
+        user_info = UserInfo.objects.get(user=request.user)
+    except UserInfo.DoesNotExist:
+        # 如果UserInfo不存在，创建默认信息
+        avatar_num = random.randint(1, 6)
+        user_info = UserInfo.objects.create(
+            user=request.user,
+            nickname=f'用户{request.user.username[:4]}',
+            gender='未知',
+            avatar=f'avatars/default_{avatar_num}.png'
+        )
+    return render(request, 'user/account/security.html', {
+        'user': request.user,
+        'user_info': user_info
+    })
+
+## 设置密码API
+## 功能: 处理设置密码请求, 支持JSON格式
+def set_password_api(request):
+    """设置密码API(用于未设置密码的用户)"""
+    try:
+        # 更精确的密码状态检查
+        if request.user.password and request.user.has_usable_password():
+            return JsonResponse({'status': 'error', 'message': '您已设置过密码，请使用修改密码功能'}, status=400)
+        
+        data = json.loads(request.body)
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+        
+        # 验证必填字段
+        if not new_password or not confirm_password:
+            return JsonResponse({'status': 'error', 'message': '请填写所有密码字段'}, status=400)
+            
+        # 验证密码一致性
+        if new_password != confirm_password:
+            return JsonResponse({'status': 'error', 'message': '两次输入的密码不一致'}, status=400)
+            
+        # 验证密码复杂度
+        if len(new_password) < 6 or len(new_password) > 12:
+            return JsonResponse({'status': 'error', 'message': '密码长度需为6-12位'}, status=400)
+        if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,12}$', new_password):
+            return JsonResponse({'status': 'error', 'message': '密码需包含字母和数字组合'}, status=400)
+            
+        # 清除可能的无效密码哈希
+        if request.user.password and not request.user.has_usable_password():
+            request.user.password = ''
+            
+        # 设置新密码
+        request.user.set_password(new_password)
+        request.user.save()
+        
+        # 返回结果
+        return JsonResponse({
+            'status': 'success', 
+            'message': '密码设置成功',
+            'has_password': True,
+            'redirect_url': '/user/security_settings/'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+## 修改密码API
+## 功能: 处理修改密码请求, 支持JSON格式
+@csrf_exempt
+def change_password_api(request):
+    """修改密码API"""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': '仅支持POST请求'}, status=405)
+    
+    try:
+        # 确保请求体是有效的JSON
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': '无效的JSON数据'}, status=400)
+            
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+        
+        # 验证必填字段
+        if not all([old_password, new_password, confirm_password]):
+            return JsonResponse({'status': 'error', 'message': '请填写所有密码字段'}, status=400)
+            
+        # 验证密码一致性
+        if new_password != confirm_password:
+            return JsonResponse({'status': 'error', 'message': '两次输入的新密码不一致'}, status=400)
+            
+        # 验证原密码
+        if not request.user.check_password(old_password):
+            return JsonResponse({'status': 'error', 'message': '原密码错误'}, status=400)
+            
+        # 验证密码复杂度
+        if len(new_password) < 6 or len(new_password) > 12:
+            return JsonResponse({'status': 'error', 'message': '密码长度需为6-12位'}, status=400)
+        if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,12}$', new_password):
+            return JsonResponse({'status': 'error', 'message': '密码需包含字母和数字组合'}, status=400)
+            
+        # 更新密码
+        request.user.set_password(new_password)
+        request.user.save()
+        
+        return JsonResponse({
+            'status': 'success', 
+            'message': '密码修改成功',
+            'redirect_url': '/user/security_settings/'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
 def change_phone_view(request):
     """修改手机号视图"""
@@ -472,10 +619,168 @@ def featured_reviews(request):
     """精选评价视图"""
     return render(request, 'user/featured_reviews.html')
 
-def security_settings(request):
-    """安全设置视图"""
-    return render(request, 'user/security_settings.html')
+
 
 def provider_verification(request):
     """服务者认证视图"""
     return render(request, 'user/provider_verification.html')
+
+#-----------------------------安全设置API-----------------------------#
+
+
+
+
+
+def send_phone_code_api(request):
+    """发送手机验证码API"""
+    try:
+        data = json.loads(request.body)
+        phone = data.get('phone')
+        
+        if not phone or not re.match(r'^1[3-9]\d{9}$', phone):
+            return JsonResponse({'status': 'error', 'message': '请输入有效的手机号码'}, status=400)
+            
+        # 生成6位随机验证码
+        code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        # 存储验证码到缓存，有效期5分钟
+        cache.set(f'security_code_{phone}', code, 300)
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': '验证码已发送',
+            'code': code  # 开发模式下返回验证码
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+def change_phone_api(request):
+    """更换手机号API(需验证原手机号验证码)"""
+    try:
+        data = json.loads(request.body)
+        old_phone = request.user.phone  # 获取当前绑定手机号
+        new_phone = data.get('new_phone')
+        code = data.get('code')
+        
+        # 验证新手机号格式
+        if not new_phone or not re.match(r'^1[3-9]\d{9}$', new_phone):
+            return JsonResponse({'status': 'error', 'message': '请输入有效的新手机号码'}, status=400)
+            
+        # 验证码检查
+        if not code or not re.match(r'^\d{6}$', code):
+            return JsonResponse({'status': 'error', 'message': '请输入6位验证码'}, status=400)
+            
+        # 验证原手机号验证码
+        cached_code = cache.get(f'change_phone_code_{old_phone}')
+        if not cached_code or cached_code != code:
+            return JsonResponse({'status': 'error', 'message': '验证码错误或已过期'}, status=400)
+            
+        # 检查新手机号是否已被使用
+        User = get_user_model()
+        if User.objects.filter(phone=new_phone).exclude(id=request.user.id).exists():
+            return JsonResponse({'status': 'error', 'message': '该手机号已被其他账号使用'}, status=400)
+            
+        # 更新手机号
+        request.user.phone = new_phone
+        request.user.save()
+        
+        # 清除验证码缓存
+        cache.delete(f'change_phone_code_{old_phone}')
+        
+        return JsonResponse({
+            'status': 'success', 
+            'message': '手机号更换成功',
+            'new_phone': new_phone  # 返回新手机号供前端更新显示
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+@csrf_exempt
+def send_change_phone_code(request):
+    """发送更换手机号验证码API(开发模式)"""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': '仅支持POST请求'}, status=405)
+        
+    try:
+        # 获取当前用户手机号
+        if not request.user.is_authenticated:
+            return JsonResponse({'status': 'error', 'message': '用户未登录'}, status=401)
+            
+        phone = request.user.phone
+        if not phone:
+            return JsonResponse({'status': 'error', 'message': '未绑定手机号'}, status=400)
+            
+        # 生成6位随机验证码
+        code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        # 存储验证码到缓存，有效期5分钟
+        cache.set(f'change_phone_code_{phone}', code, 300)
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': '验证码已发送(开发模式)',
+            'code': code,  # 开发模式下返回验证码
+            'phone': phone  # 返回当前绑定手机号
+        })
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+def submit_auth_api(request):
+    """实名认证API"""
+    try:
+        data = json.loads(request.body)
+        real_name = data.get('real_name')
+        id_number = data.get('id_number')
+        
+        if not real_name or len(real_name) < 2:
+            return JsonResponse({'status': 'error', 'message': '请输入有效的真实姓名'}, status=400)
+            
+        if not id_number or not re.match(r'(^\d{15}$)|(^\d{17}(\d|X|x)$)', id_number):
+            return JsonResponse({'status': 'error', 'message': '请输入有效的身份证号码'}, status=400)
+            
+        # 更新用户实名信息
+        request.user.real_name = real_name
+        request.user.id_number = id_number
+        request.user.save()
+        return JsonResponse({'status': 'success', 'message': '实名认证成功'})
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+def delete_account_api(request):
+    """账号注销API"""
+    try:
+        # 标记用户为已删除
+        request.user.is_active = False
+        request.user.save()
+        
+        # 登出用户
+        from django.contrib.auth import logout
+        logout(request)
+        
+        return JsonResponse({'status': 'success', 'message': '账号已注销'})
+        
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+def password_status_api(request):
+    """密码状态检查API"""
+    try:
+        if not request.user.is_authenticated:
+            return JsonResponse(
+                {'status': 'error', 'message': '用户未登录'}, 
+                status=401
+            )
+            
+        return JsonResponse({
+            'status': 'success',
+            'has_password': request.user.has_usable_password(),
+            'message': '密码状态获取成功'
+        })
+        
+    except Exception as e:
+        return JsonResponse(
+            {'status': 'error', 'message': str(e)},
+            status=500
+        )

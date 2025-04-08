@@ -1,0 +1,119 @@
+{% extends "common/base.html" %}
+{% load static %}
+
+{% block title %}安全设置{% endblock %}
+
+{% block content %}
+                <!-- Page Header -->
+                <div class="page-header position-relative">
+                    <div class="header-title">
+                        <h1>安全设置</h1>
+                    </div>
+                </div>
+                
+                <!-- Page Body -->
+                <div class="page-body">
+                    <div class="row">
+                        <div class="col-lg-8 col-lg-offset-2">
+                            <div class="security-list">
+                                <!-- 密码管理 -->
+                                <div class="security-item">
+                                    <div class="security-icon">
+                                        <i class="fa fa-lock"></i>
+                                    </div>
+                                    <div class="security-content">
+                                        <h4>密码管理</h4>
+                                        <div class="security-info">
+                                            <span>状态：</span>
+                                            <span id="password-display">
+                                                {% if user.password == "" %}未设置{% else %}已设置{% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="security-action">
+                                        <button id="password-action-btn" class="btn btn-primary">
+                                            {% if user.password == "" %}设置密码{% else %}修改密码{% endif %}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 绑定手机号 -->
+                                <div class="security-item">
+                                    <div class="security-icon">
+                                        <i class="fa fa-mobile"></i>
+                                    </div>
+                                    <div class="security-content">
+                                        <h4>绑定手机号</h4>
+                                        <div class="security-info">
+                                            <span>手机号：</span>
+                                            <span id="phone-display">
+                                                {% if user.phone %}
+                                                    +86 {{ user.phone|slice:":3" }}****{{ user.phone|slice:"7:" }}
+                                                {% else %}
+                                                    未绑定
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="security-action">
+                                        <button id="phone-action-btn" class="btn btn-primary">更换绑定</button>
+                                    </div>
+                                </div>
+
+                                <!-- 实名认证 -->
+                                <div class="security-item">
+                                    <div class="security-icon">
+                                        <i class="fa fa-id-card"></i>
+                                    </div>
+                                    <div class="security-content">
+                                        <h4>实名认证</h4>
+                                        <div class="security-info">
+                                            <span>状态：</span>
+                                            <span id="auth-display">
+                                                {% if user.real_name %}
+                                                    已认证：{{ user.real_name }} {{ user.id_number|slice:"14:" }}
+                                                {% else %}
+                                                    未认证
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="security-action">
+                                        <button id="auth-action-btn" class="btn btn-primary">
+                                            {% if user.real_name %}查看{% else %}认证{% endif %}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 账号注销 -->
+                                <div class="security-item">
+                                    <div class="security-icon">
+                                        <i class="fa fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="security-content">
+                                        <h4>账号注销</h4>
+                                        <div class="security-info">
+                                            <span>操作不可逆，请谨慎处理</span>
+                                        </div>
+                                    </div>
+                                    <div class="security-action">
+                                        <button id="delete-action-btn" class="btn btn-danger">注销账号</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+<!-- 模态框部分保持不变 -->
+{% include "user/account/security_modals.html" %}
+
+{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/user/security.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/user/account/security.js' %}"></script>
+{% endblock %}
